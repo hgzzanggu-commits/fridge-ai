@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FreshFridge</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <main class="container">
+    <h1>🥬 FreshFridge</h1>
+    <p>냉장고 사진을 올리고 AI로 식재료를 관리해보세요.</p>
+
+    <section class="upload-box">
+      <input type="file" id="imageInput" accept="image/*">
+      <button id="analyzeBtn">🔍 AI로 분석하기</button>
+    </section>
+
+    <section>
+      <h2>내 냉장고</h2>
+      <div id="result">
+        아직 분석된 식재료가 없습니다.
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
