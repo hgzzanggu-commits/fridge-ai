@@ -1,0 +1,42 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f8f3;
+  color: #222;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+h1 {
+  margin-bottom: 8px;
+}
+
+.upload-box {
+  margin-top: 30px;
+  padding: 30px;
+  background: white;
+  border-radius: 16px;
+}
+
+button {
+  margin-top: 15px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+#result {
+  margin-top: 15px;
+  padding: 20px;
+  background: white;
+  border-radius: 16px;
+}
