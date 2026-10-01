@@ -1,3 +1,11 @@
+const SUPABASE_URL = "여기에_프로젝트_URL";
+const SUPABASE_PUBLISHABLE_KEY = "여기에_Publishable_Key";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
 const imageInput = document.getElementById("imageInput");
 const analyzeBtn = document.getElementById("analyzeBtn");
 const result = document.getElementById("result");
@@ -8,5 +16,5 @@ analyzeBtn.addEventListener("click", () => {
     return;
   }
 
-  result.textContent = "사진을 선택했습니다. AI 분석 기능은 다음 단계에서 연결합니다.";
+  result.textContent = "사진을 선택했습니다.";
 });
