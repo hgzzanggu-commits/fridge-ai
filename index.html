@@ -3,28 +3,72 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>FreshFridge</title>
+
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
   <main class="container">
+
     <h1>🥬 FreshFridge</h1>
+
     <p>냉장고 사진을 올리고 AI로 식재료를 관리해보세요.</p>
 
+
+    <!-- 냉장고 사진 업로드 -->
     <section class="upload-box">
-      <input type="file" id="imageInput" accept="image/*">
-      <button id="analyzeBtn">🔍 AI로 분석하기</button>
+
+      <input
+        type="file"
+        id="imageInput"
+        accept="image/*"
+      >
+
+      <button id="analyzeBtn">
+        🔍 AI로 분석하기
+      </button>
+
     </section>
 
+
+    <!-- 냉장고 식재료 -->
     <section>
+
       <h2>내 냉장고</h2>
+
       <div id="result">
         아직 분석된 식재료가 없습니다.
       </div>
+
     </section>
+
+
+    <!-- 요리 추천 -->
+    <section class="recipe-section">
+
+      <h2>🍳 오늘의 요리 추천</h2>
+
+      <button id="recipeBtn">
+        🍳 추천 요리 보기
+      </button>
+
+      <div id="recipeResult">
+        아직 추천된 요리가 없습니다.
+      </div>
+
+    </section>
+
   </main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- 우리가 만든 JavaScript -->
   <script src="app.js"></script>
+
 </body>
 </html>
