@@ -10,6 +10,9 @@ const imageInput = document.getElementById("imageInput");
 const analyzeBtn = document.getElementById("analyzeBtn");
 const result = document.getElementById("result");
 
+// 페이지가 열리면 저장된 식재료 불러오기
+loadIngredients();
+
 analyzeBtn.addEventListener("click", async () => {
   const file = imageInput.files[0];
 
@@ -34,14 +37,14 @@ analyzeBtn.addEventListener("click", async () => {
       throw new Error(`사진 업로드 실패: ${uploadError.message}`);
     }
 
-    // 2. 업로드된 사진의 공개 URL 가져오기
+    // 2. 사진 URL 가져오기
     const { data: publicUrlData } = supabaseClient.storage
       .from("fridge-images")
       .getPublicUrl(fileName);
 
     const imageUrl = publicUrlData.publicUrl;
 
-    // 3. 사진을 Base64로 변환
+    // 3. Base64 변환
     const base64 = await fileToBase64(file);
 
     // 4. Gemini 분석
@@ -63,7 +66,7 @@ analyzeBtn.addEventListener("click", async () => {
       throw new Error("AI 분석 결과를 받지 못했습니다.");
     }
 
-    // 5. 분석 결과를 Supabase Database에 저장
+    // 5. 분석 결과 DB 저장
     result.textContent = "💾 분석 결과를 저장하는 중...";
 
     for (const item of data.ingredients) {
@@ -81,24 +84,8 @@ analyzeBtn.addEventListener("click", async () => {
       }
     }
 
-    // 6. 분석 결과 화면에 표시
-    result.innerHTML = `
-      <h3>🔍 냉장고 분석 결과</h3>
-
-      ${data.ingredients
-        .map(
-          (item) => `
-            <div class="ingredient">
-              <strong>🥬 ${item.name}</strong>
-              <p>신선도: ${item.freshness}</p>
-              <p>상태: ${item.condition}</p>
-            </div>
-          `
-        )
-        .join("")}
-
-      <p>✅ 분석 결과가 저장되었습니다.</p>
-    `;
+    // 6. 저장된 전체 식재료 다시 불러오기
+    await loadIngredients();
 
   } catch (error) {
     console.error(error);
@@ -108,14 +95,65 @@ analyzeBtn.addEventListener("click", async () => {
   }
 });
 
-// 파일을 Base64 문자열로 변환
+// DB에서 식재료 목록 가져오기
+async function loadIngredients() {
+  const { data, error } = await supabaseClient
+    .from("ingredients")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error(error);
+    result.textContent = `재료 목록 불러오기 실패: ${error.message}`;
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    result.innerHTML = "<p>아직 등록된 식재료가 없습니다.</p>";
+    return;
+  }
+
+  result.innerHTML = `
+    <h3>🥬 내 냉장고 재료</h3>
+
+    ${data.map((item) => `
+      <div class="ingredient" style="
+        margin-bottom: 15px;
+        padding: 15px;
+        background: #f8f8f8;
+        border-radius: 12px;
+      ">
+        ${
+          item.image_url
+            ? `<img src="${item.image_url}"
+                 alt="${item.name}"
+                 style="width: 100%; max-width: 300px; border-radius: 10px;">`
+            : ""
+        }
+
+        <h3>🥬 ${item.name}</h3>
+        <p>신선도: ${getFreshnessEmoji(item.freshness)} ${item.freshness}</p>
+        <p>상태: ${item.condition}</p>
+      </div>
+    `).join("")}
+  `;
+}
+
+// 신선도에 따른 아이콘
+function getFreshnessEmoji(freshness) {
+  if (freshness === "높음") return "🟢";
+  if (freshness === "보통") return "🟡";
+  if (freshness === "낮음") return "🔴";
+  return "⚪";
+}
+
+// 파일을 Base64로 변환
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
     reader.onload = () => {
-      const result = reader.result;
-      const base64 = result.split(",")[1];
+      const base64 = reader.result.split(",")[1];
       resolve(base64);
     };
 
