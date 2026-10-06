@@ -168,9 +168,62 @@ async function loadIngredients() {
           ${item.condition}
         </p>
 
+        <button
+          onclick="deleteIngredient(${item.id})"
+          style="
+            margin-top: 10px;
+            padding: 8px 14px;
+            background: #ff5c5c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+          "
+        >
+          🗑️ 삭제
+        </button>
+
       </div>
     `).join("")}
   `;
+}
+
+
+// ========================================
+// 식재료 삭제
+// ========================================
+
+async function deleteIngredient(id) {
+  const confirmed = confirm(
+    "정말 이 식재료를 삭제할까요?"
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+  try {
+    const { error } = await supabaseClient
+      .from("ingredients")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      throw new Error(
+        `삭제 실패: ${error.message}`
+      );
+    }
+
+    // 삭제 후 목록 다시 불러오기
+    await loadIngredients();
+
+    alert("✅ 식재료가 삭제되었습니다.");
+
+  } catch (error) {
+    console.error(error);
+
+    alert(error.message);
+  }
 }
 
 
