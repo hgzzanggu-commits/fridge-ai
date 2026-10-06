@@ -34,10 +34,17 @@ analyzeBtn.addEventListener("click", async () => {
       throw new Error(`사진 업로드 실패: ${uploadError.message}`);
     }
 
-    // 2. 사진을 Base64로 변환
+    // 2. 업로드된 사진의 공개 URL 가져오기
+    const { data: publicUrlData } = supabaseClient.storage
+      .from("fridge-images")
+      .getPublicUrl(fileName);
+
+    const imageUrl = publicUrlData.publicUrl;
+
+    // 3. 사진을 Base64로 변환
     const base64 = await fileToBase64(file);
 
-    // 3. Supabase Edge Function 호출
+    // 4. Gemini 분석
     result.textContent = "🤖 AI가 냉장고를 분석하는 중...";
 
     const { data, error: functionError } =
@@ -56,9 +63,28 @@ analyzeBtn.addEventListener("click", async () => {
       throw new Error("AI 분석 결과를 받지 못했습니다.");
     }
 
-    // 4. 분석 결과 화면에 표시
+    // 5. 분석 결과를 Supabase Database에 저장
+    result.textContent = "💾 분석 결과를 저장하는 중...";
+
+    for (const item of data.ingredients) {
+      const { error: dbError } = await supabaseClient
+        .from("ingredients")
+        .insert({
+          name: item.name,
+          freshness: item.freshness,
+          condition: item.condition,
+          image_url: imageUrl
+        });
+
+      if (dbError) {
+        throw new Error(`DB 저장 실패: ${dbError.message}`);
+      }
+    }
+
+    // 6. 분석 결과 화면에 표시
     result.innerHTML = `
       <h3>🔍 냉장고 분석 결과</h3>
+
       ${data.ingredients
         .map(
           (item) => `
@@ -70,7 +96,10 @@ analyzeBtn.addEventListener("click", async () => {
           `
         )
         .join("")}
+
+      <p>✅ 분석 결과가 저장되었습니다.</p>
     `;
+
   } catch (error) {
     console.error(error);
     result.textContent = error.message;
@@ -86,11 +115,7 @@ function fileToBase64(file) {
 
     reader.onload = () => {
       const result = reader.result;
-
-      // data:image/jpeg;base64,XXXXXX 중에서
-      // 실제 Base64 데이터만 가져오기
       const base64 = result.split(",")[1];
-
       resolve(base64);
     };
 
